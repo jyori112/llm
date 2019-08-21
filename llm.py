@@ -1,10 +1,15 @@
 import sys
+import logging
 
 import click
 import numpy as np
 import cupy
 from cupy import cuda
 from tqdm import tqdm
+
+logger = logging.getLogger(__name__)
+LOG_FORMAT = '[%(asctime)s] [%(levelname)s] %(message)s (%(funcName)s@%(filename)s:%(lineno)s)'
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 
 def _as_batch_mat(x):
     return x.reshape(len(x), x.shape[1], -1)
@@ -129,7 +134,7 @@ class Mapper:
 @click.option('--batchsize', type=int, default=100)
 @click.option('--ignore-exact-words/--no-ignore-exact-words', default=False)
 def main(gen_emb_path, spec_emb_path, num_neighbors, ignore_exact_words=False, batchsize=1000):
-    print("Load embeddings....", file=sys.stderr)
+    logger.info("Load embeddings....")
     with open(gen_emb_path) as f:
         gen_word2id, _, gen_emb = load_emb(f)
 
@@ -137,7 +142,7 @@ def main(gen_emb_path, spec_emb_path, num_neighbors, ignore_exact_words=False, b
         spec_word2id, _, spec_emb = load_emb(f)
 
     # 語彙の共通部分の抽出する
-    print("Extracting intersection...", file=sys.stderr)
+    logger.info("Extracting intersection...")
     gen_words = set(gen_word2id.keys())
     spec_words = set(spec_word2id.keys())
     words = list(gen_words.intersection(spec_words))
@@ -147,12 +152,12 @@ def main(gen_emb_path, spec_emb_path, num_neighbors, ignore_exact_words=False, b
     spec_emb = spec_emb[[spec_word2id[word] for word in words]]
 
     # GPUへ転送
-    #print("Sending embeddings to GPU...", file=sys.stderr)
+    #logger.info("Sending embeddings to GPU...", file=sys.stderr)
     #gen_emb = cupy.array(gen_emb)
     #spec_emb = cupy.array(spec_emb)
 
     # Mapping Modelを作成
-    print("Creating mapping model...", file=sys.stderr)
+    logger.info("Creating mapping model...")
     mapper = Mapper(words, gen_emb, spec_emb, num_neighbors, ignore_exact_words)
     mapper.to_gpu()
 
@@ -160,7 +165,7 @@ def main(gen_emb_path, spec_emb_path, num_neighbors, ignore_exact_words=False, b
     batch_emb = cupy.empty((batchsize, gen_emb.shape[1]), dtype=cupy.float32)
     batch_words = []
 
-    print("Mapping...", file=sys.stderr)
+    logger.info("Mapping...")
     n_vocab, _ = map(int, sys.stdin.readline().split())
 
     print("{} {}".format(n_vocab, mapper.output_dim))
