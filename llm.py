@@ -98,8 +98,8 @@ class Mapper:
         # Ignore exact matching words
         if self._ignore_exact_words:
             # indexはbatchの各単語のword indexをもっている
-            word_index = cupy.array([self._word2id[word] for word in batch_words if word in self._word2id])
-            batch_index = cupy.array([i for i, word in enumerate(batch_words) if word in self._word2id])
+            word_index = cupy.array([self._word2id[word] for word in batch_words if word in self._word2id], dtype=cupy.int32)
+            batch_index = cupy.array([i for i, word in enumerate(batch_words) if word in self._word2id], dtype=cupy.int32)
 
             # Set the score of matching words to very small
             cos_score[batch_index, word_index] = -100
