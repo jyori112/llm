@@ -130,7 +130,7 @@ class Mapper:
 @click.command()
 @click.argument('gen_emb_path', type=click.Path(exists=True))
 @click.argument('spec_emb_path', type=click.Path(exists=True))
-@click.option('--num-neighbors', type=int)
+@click.option('--num-neighbors', type=int, default=10)
 @click.option('--batchsize', type=int, default=100)
 @click.option('--ignore-exact-words/--no-ignore-exact-words', default=False)
 def main(gen_emb_path, spec_emb_path, num_neighbors, ignore_exact_words=False, batchsize=1000):
