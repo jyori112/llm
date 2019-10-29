@@ -7,3 +7,4 @@ vecmap
 output
 *.ipynb
 embeddings/
+__pycache__/
