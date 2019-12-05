@@ -1,0 +1,10 @@
+data
+europarl-tools
+fastText
+wikiextractor
+vecmap
+.ipynb_checkpoints
+output
+*.ipynb
+embeddings/
+__pycache__/
